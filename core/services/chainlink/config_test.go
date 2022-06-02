@@ -366,12 +366,14 @@ func TestConfig_Marshal(t *testing.T) {
 				FlagsContractAddress: mustAddress("0xae4E781a6218A8031764928E88d457937A954fC3"),
 
 				GasBumpPercent:     ptr[uint16](10),
+				GasBumpThreshold:   utils.NewBigI(6),
 				GasBumpTxDepth:     ptr[uint16](6),
 				GasBumpWei:         utils.NewBigI(100),
 				GasEstimatorMode:   ptr("L2Suggested"),
 				GasFeeCapDefault:   utils.NewBigI(math.MaxInt64),
 				GasLimitDefault:    utils.NewBigI(12),
 				GasLimitMultiplier: mustDecimal("1.234"),
+				GasLimitTransfer:   utils.NewBigI(100),
 				GasPriceDefault:    utils.NewBigI(math.MaxInt64),
 				GasTipCapDefault:   utils.NewBigI(2),
 				GasTipCapMinimum:   utils.NewBigI(1),
@@ -695,12 +697,14 @@ EIP1559DynamicFees = true
 FinalityDepth = 42
 FlagsContractAddress = '0xae4E781a6218A8031764928E88d457937A954fC3'
 GasBumpPercent = 10
+GasBumpThreshold = '6'
 GasBumpTxDepth = 6
 GasBumpWei = '100'
 GasEstimatorMode = 'L2Suggested'
 GasFeeCapDefault = '9223372036854775807'
 GasLimitDefault = '12'
 GasLimitMultiplier = '1.234'
+GasLimitTransfer = '100'
 GasPriceDefault = '9223372036854775807'
 GasTipCapDefault = '2'
 GasTipCapMinimum = '1'
