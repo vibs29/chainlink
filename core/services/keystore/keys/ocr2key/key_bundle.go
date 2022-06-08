@@ -1,9 +1,6 @@
 package ocr2key
 
 import (
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -13,7 +10,6 @@ import (
 	ocrtypes "github.com/smartcontractkit/libocr/offchainreporting2/types"
 
 	"github.com/smartcontractkit/chainlink/core/services/keystore/chaintype"
-	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/ocrkey"
 	"github.com/smartcontractkit/chainlink/core/store/models"
 )
 
@@ -30,6 +26,12 @@ type KeyBundle interface {
 	Raw() Raw
 	OnChainPublicKey() string
 }
+
+// check generic keybundle for each chain conforms to KeyBundle interface
+var _ KeyBundle = &keyBundle[*evmKeyring]{}
+var _ KeyBundle = &keyBundle[*solanaKeyring]{}
+var _ KeyBundle = &keyBundle[*terraKeyring]{}
+var _ KeyBundle = &keyBundle[*starknetKeyring]{}
 
 var curve = secp256k1.S256()
 
@@ -61,30 +63,6 @@ func MustNewInsecure(reader io.Reader, chainType chaintype.ChainType) KeyBundle 
 		return mustNewKeyBundleInsecure(chaintype.StarkNet, newStarkNetKeyring, reader)
 	}
 	panic(chaintype.NewErrInvalidChainType(chainType))
-}
-
-// NewKeyBundleFromOCR1Key gets the key bundle from an OCR1 key
-func NewKeyBundleFromOCR1Key(v1key ocrkey.KeyV2) (keyBundle[*evmKeyring], error) {
-	onChainKeyRing := evmKeyring{
-		privateKey: ecdsa.PrivateKey(*v1key.OnChainSigning),
-	}
-	offChainKeyRing := OffchainKeyring{
-		signingKey:    ed25519.PrivateKey(*v1key.OffChainSigning),
-		encryptionKey: *v1key.OffChainEncryption,
-	}
-	k := keyBundle[*evmKeyring]{
-		keyBundleBase: keyBundleBase{
-			chainType:       chaintype.EVM,
-			OffchainKeyring: offChainKeyRing,
-		},
-		keyring: &onChainKeyRing,
-	}
-	marshalledPrivK, err := k.Marshal()
-	if err != nil {
-		return keyBundle[*evmKeyring]{}, err
-	}
-	k.id = sha256.Sum256(marshalledPrivK)
-	return k, nil
 }
 
 var _ fmt.GoStringer = &keyBundleBase{}
