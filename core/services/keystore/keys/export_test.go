@@ -8,6 +8,7 @@ import (
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/ocrkey"
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/p2pkey"
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/solkey"
+	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/starkkey"
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/terrakey"
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/vrfkey"
 	"github.com/smartcontractkit/chainlink/core/utils"
@@ -15,7 +16,7 @@ import (
 )
 
 type KeyType interface {
-	ethkey.KeyV2 | csakey.KeyV2 | p2pkey.KeyV2 | vrfkey.KeyV2 | ocrkey.KeyV2 | solkey.Key | terrakey.Key
+	ethkey.KeyV2 | csakey.KeyV2 | p2pkey.KeyV2 | vrfkey.KeyV2 | ocrkey.KeyV2 | solkey.Key | terrakey.Key | starkkey.Key
 	ToEncryptedJSON(password string, scryptParams utils.ScryptParams) (export []byte, err error)
 	String() string
 }
@@ -33,7 +34,8 @@ func TestKeyExportImport(t *testing.T) {
 		{"vrfkey", runTestCase[vrfkey.KeyV2]},
 		{"ocrkey", runTestCase[ocrkey.KeyV2]},
 		{"solkey", runTestCase[solkey.Key]},
-		{"terrakey", runTestCase[solkey.Key]},
+		{"terrakey", runTestCase[terrakey.Key]},
+		{"starkkey", runTestCase[starkkey.Key]},
 	}
 
 	for _, test := range tests {
@@ -76,6 +78,8 @@ func createKey[K KeyType]() (ret K, err error) {
 		*r, err = solkey.New()
 	case *terrakey.Key:
 		*r = terrakey.New()
+	case *starkkey.Key:
+		*r, err = starkkey.New()
 	}
 	return
 }
@@ -96,6 +100,8 @@ func decrypt[K KeyType](t *testing.T, keyJSON []byte, password string) (ret K, e
 		*r, err = solkey.FromEncryptedJSON(keyJSON, password)
 	case *terrakey.Key:
 		*r, err = terrakey.FromEncryptedJSON(keyJSON, password)
+	case *starkkey.Key:
+		*r, err = starkkey.FromEncryptedJSON(keyJSON, password)
 	}
 	return
 }
