@@ -231,8 +231,7 @@ contract OptimismSequencerUptimeFeed is
       answer = getStatusAnswer(round.status);
       startedAt = uint256(round.timestamp);
     } else {
-      answer = 0;
-      startedAt = 0;
+      revert NoDataPresent();
     }
     roundId = _roundId;
     updatedAt = startedAt;
